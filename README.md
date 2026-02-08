@@ -39,3 +39,9 @@ The project uses **Neon PostgreSQL**.
 ## Documentation
 - [Implementation Plan](IMPLEMENTATION_SUMMARY.md)
 - [API Documentation](API_DOCUMENTATION.md)
+
+## Admin Credentials
+To access the internal admin portal at `/internals`:
+
+- **Admin Login:** `admin@freip.com`
+- **Password:** `password123`
