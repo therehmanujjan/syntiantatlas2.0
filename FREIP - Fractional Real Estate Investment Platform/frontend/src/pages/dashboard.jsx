@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import StatsCard from '../components/StatsCard';
-import { FaWallet, FaBuilding, FaThLarge } from 'react-icons/fa';
+import { FaWallet, FaBuilding, FaThLarge, FaHome } from 'react-icons/fa';
 import { BiBuildingHouse } from 'react-icons/bi';
 import Link from 'next/link';
 
