@@ -1,37 +1,81 @@
 import express from 'express';
-import { authenticateToken, authorize } from '../middleware/auth.js';
-import { User, Property } from '../models/index.js';
+import * as adminController from '../controllers/adminController.js';
+import { authenticateToken, requireAdmin, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Super Admin only routes
-router.get('/users', authenticateToken, authorize('super_admin'), async (req, res) => {
-  try {
-    const { role } = req.query;
-    const users = role ? await User.findByRole(role) : await User.findByRole('investor');
-    res.json({ users, count: users.length });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// All admin routes require authentication and admin role
+router.use(authenticateToken);
+router.use(requireAdmin);
 
-router.get('/properties/pending', authenticateToken, authorize('super_admin'), async (req, res) => {
-  try {
-    const properties = await Property.findAll({ status: 'pending' });
-    res.json({ properties, count: properties.length });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+/**
+ * @route GET /api/admin/dashboard
+ * @desc Get admin dashboard statistics
+ * @access Admin only
+ */
+router.get('/dashboard', adminController.getDashboardStats);
 
-router.put('/properties/:id/approve', authenticateToken, authorize('super_admin'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedProperty = await Property.update(id, { status: 'active' });
-    res.json({ message: 'Property approved', property: updatedProperty });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+/**
+ * @route GET /api/admin/users
+ * @desc Get all users with pagination and filtering
+ * @access Admin only
+ */
+router.get('/users', adminController.getAllUsers);
+
+/**
+ * @route GET /api/admin/users/:id
+ * @desc Get single user by ID
+ * @access Admin only
+ */
+router.get('/users/:id', adminController.getUserById);
+
+/**
+ * @route POST /api/admin/users
+ * @desc Create staff account with auto-generated credentials
+ * @access Admin only
+ */
+router.post('/users', adminController.createStaffAccount);
+
+/**
+ * @route PUT /api/admin/users/:id
+ * @desc Update user
+ * @access Admin only
+ */
+router.put('/users/:id', adminController.updateUser);
+
+/**
+ * @route DELETE /api/admin/users/:id
+ * @desc Deactivate user (soft delete)
+ * @access Admin only
+ */
+router.delete('/users/:id', adminController.deactivateUser);
+
+/**
+ * @route GET /api/admin/properties/pending
+ * @desc Get pending property approvals
+ * @access Admin only
+ */
+router.get('/properties/pending', adminController.getPendingProperties);
+
+/**
+ * @route PUT /api/admin/properties/:id/status
+ * @desc Approve or reject property
+ * @access Admin only
+ */
+router.put('/properties/:id/status', adminController.updatePropertyStatus);
+
+/**
+ * @route GET /api/admin/transactions
+ * @desc Get all transactions with filtering
+ * @access Admin only
+ */
+router.get('/transactions', adminController.getAllTransactions);
+
+/**
+ * @route GET /api/admin/audit-logs
+ * @desc Get audit logs
+ * @access Admin only
+ */
+router.get('/audit-logs', adminController.getAuditLogs);
 
 export default router;
