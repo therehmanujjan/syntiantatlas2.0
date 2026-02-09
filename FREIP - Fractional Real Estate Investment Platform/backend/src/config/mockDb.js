@@ -1,7 +1,25 @@
 
 // In-memory mock database
+// Admin password is 'admin123' - pre-hashed using bcrypt with 10 rounds
 const db = {
-    users: [],
+    users: [
+        {
+            id: 1,
+            email: 'admin@freip.com',
+            // Hash of 'admin123' - generated with bcrypt.hash('admin123', 10)
+            password_hash: '$2a$10$MFQBz/crmlMGVSmTUeEIIuruiyCe2k4TXxJkJEGopFGIt8aGkzUsO',
+            first_name: 'System',
+            last_name: 'Admin',
+            phone: '+92300000000',
+            role_id: 'admin',
+            kyc_status: 'verified',
+            kyc_level: 3,
+            wallet_balance: 0,
+            status: 'active',
+            created_at: new Date(),
+            updated_at: new Date()
+        }
+    ],
     properties: [
         {
             id: 1,
@@ -43,6 +61,12 @@ export const mockQuery = async (text, params) => {
     // ------------------------------------------------------------------
     // USER QUERIES
     // ------------------------------------------------------------------
+
+    // Login query: SELECT with specific columns including password_hash
+    if (normalized.includes('FROM USERS WHERE EMAIL') && normalized.includes('PASSWORD_HASH')) {
+        const user = db.users.find(u => u.email === params[0]);
+        return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
+    }
 
     // findByEmail: SELECT * FROM users WHERE email = $1
     if (normalized.includes('SELECT * FROM USERS WHERE EMAIL = $1')) {
